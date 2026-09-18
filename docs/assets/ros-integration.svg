@@ -1,0 +1,79 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="790" viewBox="0 0 1200 790" role="img" aria-labelledby="title desc">
+<title id="title">AachenRover package integration overview</title>
+<desc id="desc">Packages are built by colcon, installed, and started by launch files. Runtime nodes exchange typed messages. The current rover sends commands through a guard and bridge to Gazebo. A future camera pipeline follows the same topic-based pattern.</desc>
+<defs><marker id="arrow" markerWidth="9" markerHeight="9" refX="8" refY="4" orient="auto"><path d="M0 0 L8 4 L0 8" fill="none" stroke="#52647b" stroke-width="1.6"/></marker></defs>
+<style>text{font-family:DejaVu Sans,Arial,sans-serif;fill:#1e293b} .title{font-size:28px;font-weight:700}.heading{font-size:19px;font-weight:700}.body{font-size:16px}.small{font-size:14px;fill:#475569}.label{font-size:15px;fill:#334155}.line{fill:none;stroke:#52647b;stroke-width:2;marker-end:url(#arrow)}</style>
+<rect width="1200" height="790" fill="#f5f7fb"/>
+
+<text x="36" y="46" class="title" text-anchor="start">AachenRover · How packages become a working system</text>
+<text x="36" y="76" class="body" text-anchor="start">Build the code → start the workers → connect their ROS interfaces</text>
+<rect x="24" y="100" width="1152" height="167" rx="12" fill="#ffffff" stroke="#cbd5e1"/>
+<text x="44" y="133" class="heading" text-anchor="start">1  BUILD + STARTUP</text>
+<rect x="48" y="160" width="226" height="70" rx="12" fill="#eef2ff" stroke="#cbd5e1"/>
+<text x="161.0" y="187" class="body" text-anchor="middle">Source packages</text>
+<text x="161.0" y="210" class="small" text-anchor="middle">software/ros2_ws/src/</text>
+<rect x="340" y="160" width="226" height="70" rx="12" fill="#eef2ff" stroke="#cbd5e1"/>
+<text x="453.0" y="187" class="body" text-anchor="middle">colcon build</text>
+<text x="453.0" y="210" class="small" text-anchor="middle">./scripts/rover build</text>
+<rect x="632" y="160" width="226" height="70" rx="12" fill="#eef2ff" stroke="#cbd5e1"/>
+<text x="745.0" y="187" class="body" text-anchor="middle">Installed workspace</text>
+<text x="745.0" y="210" class="small" text-anchor="middle">install/ + setup.bash</text>
+<rect x="924" y="160" width="226" height="70" rx="12" fill="#eef2ff" stroke="#cbd5e1"/>
+<text x="1037.0" y="187" class="body" text-anchor="middle">Launch files</text>
+<text x="1037.0" y="210" class="small" text-anchor="middle">start nodes + set config</text>
+<path class="line" d="M274 195 L340 195"/>
+<path d="M332 190 L340 195 L332 200" fill="none" stroke="#52647b" stroke-width="2"/>
+<path class="line" d="M566 195 L632 195"/>
+<path d="M624 190 L632 195 L624 200" fill="none" stroke="#52647b" stroke-width="2"/>
+<path class="line" d="M858 195 L924 195"/>
+<path d="M916 190 L924 195 L916 200" fill="none" stroke="#52647b" stroke-width="2"/>
+<rect x="24" y="285" width="1152" height="255" rx="12" fill="#ffffff" stroke="#cbd5e1"/>
+<text x="44" y="321" class="heading" text-anchor="start">2  CURRENT ROVER · RUNNING NODES + GAZEBO</text>
+<rect x="48" y="360" width="226" height="70" rx="12" fill="#eaf7f2" stroke="#cbd5e1"/>
+<text x="161.0" y="387" class="body" text-anchor="middle">Driving panel</text>
+<text x="161.0" y="410" class="small" text-anchor="middle">rover_teleop</text>
+<rect x="340" y="360" width="226" height="70" rx="12" fill="#eaf7f2" stroke="#cbd5e1"/>
+<text x="453.0" y="387" class="body" text-anchor="middle">Velocity guard</text>
+<text x="453.0" y="410" class="small" text-anchor="middle">limits + input timeout</text>
+<rect x="632" y="360" width="226" height="70" rx="12" fill="#eaf7f2" stroke="#cbd5e1"/>
+<text x="745.0" y="387" class="body" text-anchor="middle">ROS / Gazebo bridge</text>
+<text x="745.0" y="410" class="small" text-anchor="middle">message translation</text>
+<rect x="924" y="360" width="226" height="70" rx="12" fill="#eaf7f2" stroke="#cbd5e1"/>
+<text x="1037.0" y="387" class="body" text-anchor="middle">Gazebo</text>
+<text x="1037.0" y="410" class="small" text-anchor="middle">drive + lidar plugins</text>
+<path class="line" d="M274 395 L340 395"/>
+<path d="M332 390 L340 395 L332 400" fill="none" stroke="#52647b" stroke-width="2"/>
+<text x="307" y="348" class="label" text-anchor="middle">/cmd_vel</text>
+<path class="line" d="M566 395 L632 395"/>
+<path d="M624 390 L632 395 L624 400" fill="none" stroke="#52647b" stroke-width="2"/>
+<text x="599" y="348" class="label" text-anchor="middle">/cmd_vel_safe</text>
+<path class="line" d="M858 395 L924 395"/>
+<path d="M916 390 L924 395 L916 400" fill="none" stroke="#52647b" stroke-width="2"/>
+<text x="891" y="348" class="label" text-anchor="middle">GZ /cmd_vel</text>
+<path class="line" d="M1037 430 L1037 460 L745 460 L745 430"/>
+<path d="M740 440 L745 430 L750 440" fill="none" stroke="#52647b" stroke-width="2"/>
+<text x="891" y="484" class="small" text-anchor="middle">sensor / state messages</text>
+<text x="48" y="466" class="heading" text-anchor="start">RViz + state publisher</text>
+<path class="line" d="M632 430 L600 450 L390 450"/>
+<path d="M400 445 L390 450 L400 455" fill="none" stroke="#52647b" stroke-width="2"/>
+<text x="48" y="500" class="small" text-anchor="start">ROS topics: /scan, /odom, /joint_states, /tf and /clock</text>
+<rect x="24" y="558" width="1152" height="154" rx="12" fill="#fffcf3" stroke="#d6bd76" stroke-dasharray="7 5"/>
+<text x="44" y="593" class="heading" text-anchor="start">3  EXTENSION EXAMPLE · CAMERA + YOUR ALGORITHM (NOT CREATED YET)</text>
+<rect x="48" y="615" width="285" height="70" rx="12" fill="#fff9e8" stroke="#cbd5e1" stroke-dasharray="7 5"/>
+<text x="190.5" y="642" class="body" text-anchor="middle">Camera driver package</text>
+<text x="190.5" y="665" class="small" text-anchor="middle">implement capture or use a driver</text>
+<rect x="462" y="615" width="276" height="70" rx="12" fill="#fff9e8" stroke="#cbd5e1" stroke-dasharray="7 5"/>
+<text x="600.0" y="642" class="body" text-anchor="middle">ROS image topics</text>
+<text x="600.0" y="665" class="small" text-anchor="middle">Image + CameraInfo</text>
+<rect x="867" y="615" width="283" height="70" rx="12" fill="#fff9e8" stroke="#cbd5e1" stroke-dasharray="7 5"/>
+<text x="1008.5" y="642" class="body" text-anchor="middle">Processing package</text>
+<text x="1008.5" y="665" class="small" text-anchor="middle">your Python or C++ algorithm</text>
+<path class="line" d="M333 650 L462 650"/>
+<path d="M454 645 L462 650 L454 655" fill="none" stroke="#52647b" stroke-width="2"/>
+<text x="397.5" y="640" class="label" text-anchor="middle">publish</text>
+<path class="line" d="M738 650 L867 650"/>
+<path d="M859 645 L867 650 L859 655" fill="none" stroke="#52647b" stroke-width="2"/>
+<text x="802.5" y="640" class="label" text-anchor="middle">subscribe</text>
+<text x="36" y="748" class="heading" text-anchor="start">Integration contract: topic name + message type + QoS + frame + timestamp</text>
+<text x="36" y="776" class="small" text-anchor="start">A launch file starts workers. ROS topics carry their data. Gazebo plugins are not standalone ROS nodes.</text>
+</svg>
