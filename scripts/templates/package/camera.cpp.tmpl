@@ -1,0 +1,64 @@
+#include <chrono>
+#include <cmath>
+#include <memory>
+#include <optional>
+#include <stdexcept>
+#include <string>
+#include <utility>
+#include <rclcpp/rclcpp.hpp>
+#include <sensor_msgs/msg/image.hpp>
+#include <sensor_msgs/msg/camera_info.hpp>
+
+class Worker : public rclcpp::Node {
+ public:
+  Worker() : Node("${node}") {
+    const auto rate = declare_parameter<double>("rate_hz", 10.0);
+    if (!std::isfinite(rate) || rate <= 0) {
+      throw std::invalid_argument("rate_hz must be finite and positive");
+    }
+    device_ = declare_parameter<std::string>("device", "");
+    frame_id_ = declare_parameter<std::string>("frame_id", "camera_optical_frame");
+    images_ = create_publisher<sensor_msgs::msg::Image>("image_raw", rclcpp::SensorDataQoS());
+    calibration_ = create_publisher<sensor_msgs::msg::CameraInfo>("camera_info", rclcpp::SensorDataQoS());
+    timer_ = rclcpp::create_timer(this, get_clock(),
+        std::chrono::duration<double>(1.0 / rate), [this]() { tick(); });
+    RCLCPP_WARN(get_logger(), "Camera scaffold ready; no capture backend implemented, no images published.");
+  }
+  ~Worker() override {
+    // TODO: stop capture threads and release the device here when added.
+  }
+ private:
+  using Sample = std::pair<sensor_msgs::msg::Image, sensor_msgs::msg::CameraInfo>;
+  std::optional<Sample> read_sample() {
+    // TODO: return image + calibration from your SDK or capture worker.
+    // Set headers to acquisition time in the ROS clock domain. Fill dimensions,
+    // encoding, step, image data and calibration. Do not block indefinitely.
+    return std::nullopt;
+  }
+  void tick() {
+    auto sample = read_sample();
+    if (!sample) return;
+    auto &[image, info] = *sample;
+    image.header.frame_id = frame_id_;
+    info.header = image.header;
+    images_->publish(image);
+    calibration_->publish(info);
+  }
+  std::string device_, frame_id_;
+  rclcpp::Publisher<sensor_msgs::msg::Image>::SharedPtr images_;
+  rclcpp::Publisher<sensor_msgs::msg::CameraInfo>::SharedPtr calibration_;
+  rclcpp::TimerBase::SharedPtr timer_;
+};
+
+int main(int argc, char **argv) {
+  rclcpp::init(argc, argv);
+  try {
+    rclcpp::spin(std::make_shared<Worker>());
+  } catch (const std::exception &error) {
+    RCLCPP_ERROR(rclcpp::get_logger("${node}"), "%s", error.what());
+    rclcpp::shutdown();
+    return 1;
+  }
+  rclcpp::shutdown();
+  return 0;
+}

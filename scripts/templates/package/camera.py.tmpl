@@ -1,0 +1,57 @@
+"""Camera integration shell. No device is opened until capture is implemented."""
+import math
+import rclpy
+from rclpy.node import Node
+from rclpy.executors import ExternalShutdownException
+from rclpy.qos import qos_profile_sensor_data
+from sensor_msgs.msg import Image, CameraInfo
+
+
+class Worker(Node):
+    def __init__(self):
+        super().__init__('${node}')
+        rate = self.declare_parameter('rate_hz', 10.0).value
+        if not math.isfinite(rate) or rate <= 0:
+            raise ValueError('rate_hz must be finite and positive')
+        self.device = self.declare_parameter('device', '').value
+        self.frame_id = self.declare_parameter('frame_id', 'camera_optical_frame').value
+        self.images = self.create_publisher(Image, 'image_raw', qos_profile_sensor_data)
+        self.calibration = self.create_publisher(CameraInfo, 'camera_info', qos_profile_sensor_data)
+        self.timer = self.create_timer(1.0 / rate, self.tick)
+        self.get_logger().warning('Camera scaffold ready; no capture backend implemented, no images published.')
+
+    def read_sample(self):
+        # TODO: return (Image, CameraInfo) from your SDK or capture worker.
+        # Set BOTH headers to the acquisition timestamp in the ROS clock domain.
+        # Fill dimensions, encoding, step, image data and calibration consistently.
+        # Return None when no frame is ready; never block indefinitely here.
+        return None
+
+    def tick(self):
+        sample = self.read_sample()
+        if sample is None:
+            return
+        image, info = sample
+        image.header.frame_id = self.frame_id
+        info.header = image.header
+        self.images.publish(image)
+        self.calibration.publish(info)
+
+    def destroy_node(self):
+        # TODO: stop capture threads and release the device here when added.
+        return super().destroy_node()
+
+
+def main(args=None):
+    rclpy.init(args=args)
+    node = None
+    try:
+        node = Worker()
+        rclpy.spin(node)
+    except (KeyboardInterrupt, ExternalShutdownException):
+        pass
+    finally:
+        if node is not None:
+            node.destroy_node()
+        if rclpy.ok():
+            rclpy.shutdown()

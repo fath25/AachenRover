@@ -1,0 +1,34 @@
+"""Implement tick() with bounded work; place slow I/O in a dedicated worker."""
+import math
+import rclpy
+from rclpy.node import Node
+from rclpy.executors import ExternalShutdownException
+
+
+class Worker(Node):
+    def __init__(self):
+        super().__init__('${node}')
+        rate = self.declare_parameter('rate_hz', 10.0).value
+        if not math.isfinite(rate) or rate <= 0:
+            raise ValueError('rate_hz must be finite and positive')
+        self.timer = self.create_timer(1.0 / rate, self.tick)
+        self.get_logger().info('Worker ready; implement tick() to add behavior.')
+
+    def tick(self):
+        # TODO: implement your application logic here.
+        pass
+
+
+def main(args=None):
+    rclpy.init(args=args)
+    node = None
+    try:
+        node = Worker()
+        rclpy.spin(node)
+    except (KeyboardInterrupt, ExternalShutdownException):
+        pass
+    finally:
+        if node is not None:
+            node.destroy_node()
+        if rclpy.ok():
+            rclpy.shutdown()

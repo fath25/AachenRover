@@ -1,0 +1,36 @@
+#include <chrono>
+#include <cmath>
+#include <memory>
+#include <stdexcept>
+#include <rclcpp/rclcpp.hpp>
+
+class Worker : public rclcpp::Node {
+ public:
+  Worker() : Node("${node}") {
+    const auto rate = declare_parameter<double>("rate_hz", 10.0);
+    if (!std::isfinite(rate) || rate <= 0) {
+      throw std::invalid_argument("rate_hz must be finite and positive");
+    }
+    timer_ = rclcpp::create_timer(this, get_clock(),
+        std::chrono::duration<double>(1.0 / rate), [this]() { tick(); });
+    RCLCPP_INFO(get_logger(), "Worker ready; implement tick() to add behavior.");
+  }
+ private:
+  void tick() {
+    // TODO: implement bounded work; put slow I/O in a dedicated worker.
+  }
+  rclcpp::TimerBase::SharedPtr timer_;
+};
+
+int main(int argc, char **argv) {
+  rclcpp::init(argc, argv);
+  try {
+    rclcpp::spin(std::make_shared<Worker>());
+  } catch (const std::exception &error) {
+    RCLCPP_ERROR(rclcpp::get_logger("${node}"), "%s", error.what());
+    rclcpp::shutdown();
+    return 1;
+  }
+  rclcpp::shutdown();
+  return 0;
+}

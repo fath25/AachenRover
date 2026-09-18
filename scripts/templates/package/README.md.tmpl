@@ -1,0 +1,27 @@
+# ${package}
+
+Implement `${source}`. This package is automatically discovered by colcon in
+the repository workspace; no registry or central package list needs editing.
+
+From the AachenRover repository root:
+
+```bash
+./scripts/rover build
+./scripts/rover launch ${package} ${node}.launch.py
+# Override the namespace, configuration file, or simulation clock:
+./scripts/rover launch ${package} ${node}.launch.py namespace:=my_sensor use_sim_time:=true
+```
+
+Configuration lives in `config/params.yaml`. Use `params_file:=/absolute/path.yaml`
+for a deployment-specific configuration. Parameters are read at startup;
+restart after changing them. Use simulation time only with a `/clock` publisher.
+
+Edit `package.xml` for additional ROS dependencies. C++ dependencies also need
+`find_package` and `ament_target_dependencies` in CMakeLists.txt. Install missing
+dependencies with rosdep as documented in the repository, then rebuild. Python
+third-party imports also need an appropriate rosdep or Python dependency.
+Set real maintainer metadata before distributing the package. Add behavior tests
+when implementing the worker; this scaffold does not test an unimplemented device.
+
+This node is not automatically started with the simulation or physical robot.
+Launch it explicitly, or include its launch file in a deployment bringup launch.
