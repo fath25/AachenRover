@@ -1,0 +1,13 @@
+software/ros2_ws/build/
+software/ros2_ws/install/
+software/ros2_ws/log/
+log/
+__pycache__/
+.pytest_cache/
+*.pyc
+.env
+.env.*
+!.env.example
+*.bag
+*.db3
+*.mcap
