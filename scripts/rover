@@ -1,0 +1,46 @@
+#!/usr/bin/env bash
+set -eo pipefail
+cd "$(dirname "$0")/.."
+case "${1:-help}" in
+  sim-nvidia)
+    shift
+    exec python3 scripts/nvidia_sim.py "$@" ;;
+  create-package)
+    shift
+    exec python3 scripts/create_package.py "$@" ;;
+  context)
+    cat AGENTS.md
+    printf '\n--- Repository overview ---\n'
+    cat README.md
+    for skill in skills/*/SKILL.md; do printf '\n--- %s ---\n' "$skill"; cat "$skill"; done
+    exit 0 ;;
+  check)
+    python3 scripts/check_repository.py
+    python3 -m pytest -q scripts/tests software/ros2_ws/src/aachen_rover/test
+    exit 0 ;;
+esac
+if [[ ! -f /opt/ros/jazzy/setup.bash ]]; then
+  echo 'ROS 2 Jazzy missing. See docs/simulation.md.' >&2; exit 1
+fi
+source /opt/ros/jazzy/setup.bash
+case "${1:-help}" in
+  doctor)
+    for package in ros_gz_sim ros_gz_bridge xacro robot_state_publisher rviz2; do ros2 pkg prefix "$package"; done
+    python3 -c 'import tkinter; import rclpy; import pytest'
+    command -v colcon
+    gz sim --versions ;;
+  build)
+    colcon --log-base software/ros2_ws/log build --base-paths software/ros2_ws/src --build-base software/ros2_ws/build --install-base software/ros2_ws/install --symlink-install ;;
+  sim|smoke|test|launch)
+    if [[ ! -f software/ros2_ws/install/setup.bash ]]; then echo 'Run ./scripts/rover build first.' >&2; exit 1; fi
+    source software/ros2_ws/install/setup.bash
+    action="$1"; shift
+    case "$action" in
+      launch) ros2 launch "$@" ;;
+      sim) ros2 launch aachen_rover sim.launch.py "$@" ;;
+      smoke) ros2 run aachen_rover smoke_test.py ;;
+      test) colcon --log-base software/ros2_ws/log test --base-paths software/ros2_ws/src --build-base software/ros2_ws/build --install-base software/ros2_ws/install --event-handlers console_direct+
+            colcon test-result --test-result-base software/ros2_ws/build --verbose ;;
+    esac ;;
+  *) echo 'Usage: ./scripts/rover {create-package NAME [--language python|cpp] [--template node|camera]|launch PACKAGE FILE [args]|doctor|build|check|test|sim-nvidia [args]|sim [gui:=false teleop:=false rviz:=false]|smoke|context}' ;;
+esac

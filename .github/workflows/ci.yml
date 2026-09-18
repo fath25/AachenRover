@@ -1,0 +1,29 @@
+name: Repository and ROS checks
+on: [push, pull_request]
+jobs:
+  ros:
+    runs-on: ubuntu-24.04
+    container: ros:jazzy-ros-base
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install declared dependencies
+        shell: bash
+        run: |
+          apt-get update
+          apt-get install -y python3-pytest python3-yaml python3-colcon-common-extensions
+          rosdep update
+          rosdep install --from-paths software/ros2_ws/src --ignore-src -r -y --rosdistro jazzy
+      - run: ./scripts/rover check
+      - run: ./scripts/rover build
+      - run: ./scripts/rover test
+      - name: Build all generated package templates
+        shell: bash
+        run: |
+          source /opt/ros/jazzy/setup.bash
+          for language in python cpp; do
+            for template in node camera; do
+              ./scripts/rover create-package "test_${language}_${template}" --language "$language" --template "$template" --destination /tmp/generated/src
+            done
+          done
+          colcon --log-base /tmp/generated/log build --base-paths /tmp/generated/src --build-base /tmp/generated/build --install-base /tmp/generated/install
+# GPU/EGL integration and desktop input require a suitable runner; run smoke locally.
